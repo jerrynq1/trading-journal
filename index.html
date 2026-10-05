@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nhật ký giao dịch</title>
+<title>Trading Journal</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bgg:radial-gradient(120% 90% at 50% 0%,#151b4f 0%,#080b22 55%,#03040c 100%);--card:rgba(20,25,62,.55);--hole:#121638;--ink:#e9edff;--mut:#98a2d8;--line:rgba(150,160,255,.2);--inp:rgba(255,255,255,.06);--win:#3df5c0;--loss:#ff5c8a;--acc:#8b7cff;--be:#6c749f;--c1:#8b7cff;--c2:#ffc857;--c3:#3df5c0;--c4:#5cc8ff;--c5:#ff5c8a;--star:255,255,255;--nebo:.9;color-scheme:dark;
@@ -15,16 +15,43 @@ body{margin:0;min-height:100vh;background:var(--bgg) fixed;color:var(--ink);font
 body::before{content:"";position:fixed;inset:-25%;z-index:0;pointer-events:none;opacity:var(--nebo);background:radial-gradient(40% 35% at 20% 25%,rgba(120,80,255,.38),transparent 70%),radial-gradient(35% 30% at 80% 20%,rgba(0,200,255,.24),transparent 70%),radial-gradient(45% 40% at 70% 85%,rgba(255,70,150,.22),transparent 70%);animation:drift 50s ease-in-out infinite alternate}
 #sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:18px}
-header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:18px}
 h1{font:800 20px Orbitron,"Space Grotesk",sans-serif;letter-spacing:.04em;margin:0;display:flex;align-items:center}
 h2{font-size:15px;font-weight:700;margin:0 0 10px}
 .planet{display:inline-block;flex:none;width:22px;height:22px;border-radius:50%;margin-right:16px;position:relative;background:radial-gradient(circle at 30% 30%,#d6d0ff,#6a55e8 55%,#251a6e);box-shadow:0 0 20px rgba(139,124,255,.7)}
 .planet::after{content:"";position:absolute;left:-9px;right:-9px;top:50%;height:9px;margin-top:-4.5px;border:2px solid rgba(255,200,87,.85);border-radius:50%;transform:rotate(-22deg);animation:ring 6s ease-in-out infinite}
-nav{display:flex;gap:4px;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);padding:4px;border-radius:999px}
-nav button{border:0;background:none;color:var(--mut);font:inherit;font-weight:600;padding:7px 16px;border-radius:999px;cursor:pointer;transition:color .2s}
-nav button:hover{color:var(--ink)}
-nav button.on{background:linear-gradient(135deg,#6d5cff,#35b6ff);color:#fff;box-shadow:0 0 18px rgba(80,120,255,.55)}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+body{--sw:248px}body.sc{--sw:76px}
+#side{position:fixed;z-index:30;top:0;left:0;bottom:0;width:var(--sw);display:flex;flex-direction:column;gap:6px;padding:calc(14px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-right:1px solid var(--line);overflow:hidden;transition:width .25s cubic-bezier(.2,.8,.2,1),transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.main{position:relative;z-index:1;margin-left:var(--sw);transition:margin-left .25s cubic-bezier(.2,.8,.2,1)}
+.sh{display:flex;align-items:center;gap:4px;min-height:44px;margin-bottom:6px;flex:none}
+.ib{flex:none;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--mut);border-radius:12px;cursor:pointer;transition:color .2s,background .2s}
+.ib:hover{background:var(--inp);color:var(--ink)}
+.ib svg{width:22px;height:22px}
+.sh .ib{width:52px}
+.brand{display:flex;align-items:center;min-width:0;margin:0;font:800 14px/1.2 Orbitron,"Space Grotesk",sans-serif;letter-spacing:.04em}
+.brand .planet{margin-right:14px}
+#side nav{display:flex;flex-direction:column;gap:4px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+.sb{display:flex;align-items:center;gap:14px;width:100%;height:44px;flex:none;padding:0 0 0 15px;border:0;background:none;color:var(--mut);font:inherit;font-weight:600;border-radius:12px;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;transition:color .2s,background .2s}
+.sb .ic{flex:none;width:22px;height:22px;display:grid;place-items:center;font-size:16px;line-height:1}
+.sb svg{width:22px;height:22px}
+.sb:hover{color:var(--ink);background:var(--inp)}
+.sb.on{background:linear-gradient(135deg,#6d5cff,#35b6ff);color:#fff;box-shadow:0 0 18px rgba(80,120,255,.55)}
+.sb .ic.cd{font-size:10px;font-weight:800;letter-spacing:.02em;border:1.5px solid currentColor;border-radius:6px}
+.sb .ic.av{border-radius:50%;background:linear-gradient(135deg,#6d5cff,#35b6ff);color:#fff;font:700 11px Orbitron,"Space Grotesk",sans-serif}
+.sf{display:flex;flex-direction:column;gap:4px;flex:none;padding-top:10px;border-top:1px solid var(--line)}
+#ac{width:100%;height:44px;margin:0;border-radius:12px}
+#acb{display:none}
+body.sc #acb{display:flex}body.sc #ac{display:none}
+body.sc #side .brand,body.sc .sb .lb{display:none}
+body.nt #side,body.nt .main{transition:none!important}
+.topbar,.scrim{display:none}
+@media (max-width:760px){
+#side{width:272px;transform:translateX(-104%)}
+body.so #side{transform:none;box-shadow:0 0 60px rgba(0,0,10,.55)}
+.main{margin-left:0}
+.topbar{display:flex;align-items:center;gap:4px;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding:6px 10px;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+body.so .scrim{display:block;position:fixed;inset:0;z-index:29;background:rgba(0,0,10,.55)}
+}
 .card{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 12px 40px rgba(0,0,10,.25)}
 .grid{display:grid;gap:14px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px}
@@ -46,6 +73,9 @@ svg{width:100%;height:auto;display:block}
 .pie{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.pie svg{width:150px;flex:none}
 form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;align-items:end}
 label{font-size:13px;color:var(--mut);display:block}
+.rk{display:flex;gap:6px}.rk input{min-width:0;flex:1}.rk select{width:62px;flex:none;padding-left:8px;padding-right:4px}
+#f input,#f select{height:40px;box-sizing:border-box}#f .btn{height:40px;padding-top:0;padding-bottom:0}
+input[readonly]{cursor:default;font-weight:700;color:var(--acc)}
 input,select{width:100%;font:inherit;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--inp);color:var(--ink);margin-top:3px}
 option{background:var(--hole);color:var(--ink)}
 .btn{font:inherit;font-weight:700;border:0;background:linear-gradient(135deg,#6d5cff,#35b6ff);color:#fff;padding:9px 18px;border-radius:999px;cursor:pointer;box-shadow:0 0 16px rgba(80,120,255,.4);transition:transform .15s}
@@ -72,15 +102,23 @@ tbody tr:hover{background:var(--inp)}
 @keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{opacity:0;transform:scale(.6) rotate(-40deg)}}
-@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important}#side,.main{transition:none!important}}
 </style>
 </head>
-<body>
+<body class="nt">
+<div class="scrim" id="scrim"></div>
+<aside id="side">
+<div class="sh"><button class="ib" id="tg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3.5"/><path d="M9.5 4v16"/></svg></button><h1 class="brand"><i class="planet"></i><span class="bn">Nhật ký giao dịch</span></h1></div>
+<nav id="nav" aria-label="Menu"></nav>
+<div class="sf">
+<div class="acw"><button class="sb" id="acb" type="button"></button><select id="ac" aria-label="Account"></select></div>
+<button class="sb" id="th" type="button"></button>
+<button class="sb" id="lg" type="button"></button>
+</div>
+</aside>
+<div class="main">
+<div class="topbar"><button class="ib" id="tg2" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3.5"/><path d="M9.5 4v16"/></svg></button><span class="brand"><i class="planet"></i><span class="bn">Nhật ký giao dịch</span></span></div>
 <div class="wrap">
-<header>
-<h1><i class="planet"></i>Nhật ký giao dịch</h1>
-<div class="tools"><select id="ac" aria-label="Account" style="width:auto;margin:0"></select><nav id="nav"></nav><button class="btn ghost" id="th"></button><button class="btn ghost" id="lg"></button></div>
-</header>
 
 <section class="view" id="v-dash"></section>
 
@@ -95,7 +133,8 @@ tbody tr:hover{background:var(--inp)}
 <label>Hướng<select id="fi"><option value="Long">Long</option><option value="Short">Short</option></select></label>
 <label>Setup<select id="fp"></select></label>
 <label>Lãi/lỗ trước phí ($)<input type="number" step="any" id="fl" required></label>
-<label>R (trống = tự tính)<input type="number" step="any" id="fr"></label>
+<label>Risk<span class="rk"><input type="number" step="any" min="0.01" id="fr" placeholder="100"><select id="frm"><option value="usd">$</option><option value="pct">%</option></select></span></label>
+<label>RR (tự tính)<input id="frr" readonly tabindex="-1" placeholder="–"></label>
 <label>Giá vào<input type="number" step="any" id="fen"></label>
 <label>Giá ra<input type="number" step="any" id="fex"></label>
 <label>Stop loss<input type="number" step="any" id="fsl"></label>
@@ -130,6 +169,7 @@ tbody tr:hover{background:var(--inp)}
 </div>
 </section>
 </div>
+</div>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -157,7 +197,8 @@ const EN={'Nhật ký giao dịch':'Trading Journal','Nhật ký lệnh':'Trade 
 'Đường vốn':'Equity curve','Lãi/lỗ theo mã':'P/L by symbol','Thắng / thua':'Wins / losses','Lãi/lỗ theo setup':'P/L by setup','Số lệnh theo thị trường':'Trades by market',
 'Thắng':'Win','Thua':'Loss','Hoà':'Breakeven','Chỉ số':'Indices','Kim loại':'Metals','Khác':'Other','Lãi/lỗ':'P/L',
 'Chưa có lệnh nào.':'No trades yet.','Chưa có setup nào.':'No setups yet.','Xoá lệnh':'Delete trade','Xoá setup':'Delete setup','Sáng':'Light','Tối':'Dark','Vốn ban đầu':'Starting balance','Lãi/lỗ trong ngày':'Day P/L','Lệnh này':'This trade','Vốn':'Equity'};
-Object.assign(EN,{'Loại':'Type','Giới hạn lỗ ngày ($)':'Daily loss limit ($)','Quy tắc rủi ro':'Risk rules','Lỗ trong ngày':'Daily loss','Drawdown từ đỉnh vốn':'Drawdown from peak','Đã chạm giới hạn':'Limit hit','Gần chạm giới hạn':'Near limit','Sửa lệnh':'Edit trade','Cập nhật lệnh':'Update trade','Huỷ sửa':'Cancel edit','Sao lưu dữ liệu':'Backup data','Phạm vi':'Scope','Xuất JSON':'Export JSON','Xuất CSV':'Export CSV','Nhập file':'Import file','Đã nhập':'Imported','File không hợp lệ':'Invalid file','Max drawdown ($)':'Max drawdown ($)','Tên tài khoản':'Account name','VD: Prop firm 50K':'e.g. Prop firm 50K','Thêm tài khoản':'Add account','Xoá tài khoản':'Delete account','Tất cả tài khoản':'All accounts','Cần giữ lại ít nhất 1 tài khoản':'Keep at least 1 account','lệnh':'trades','Phân tích':'Analytics','Giá vào':'Entry','Giá ra':'Exit','Stop loss':'Stop loss','Phí ($)':'Fee ($)','Giờ vào lệnh':'Entry time','Cảm xúc':'Emotion','Lỗi mắc phải':'Mistake','R (trống = tự tính)':'R (blank = auto)','Lãi/lỗ trước phí ($)':'P/L before fees ($)','Expectancy / lệnh':'Expectancy / trade','TB lệnh thắng':'Avg win','TB lệnh thua':'Avg loss','Chuỗi thắng dài nhất':'Longest win streak','Chuỗi thua dài nhất':'Longest loss streak','Lệnh tốt nhất':'Best trade','Lệnh tệ nhất':'Worst trade','Tổng phí':'Total fees','Lãi/lỗ theo thứ':'P/L by weekday','Lãi/lỗ theo giờ':'P/L by hour','Lãi/lỗ theo tháng':'P/L by month','Lãi/lỗ theo cảm xúc':'P/L by emotion','Lãi/lỗ theo lỗi mắc phải':'P/L by mistake','Lịch lãi/lỗ':'P/L calendar','T2':'Mon','T3':'Tue','T4':'Wed','T5':'Thu','T6':'Fri','T7':'Sat','CN':'Sun','Bình tĩnh':'Calm','Tự tin':'Confident','Sợ hãi':'Fearful','Tham':'Greedy','Nóng vội':'Impatient','Chán nản':'Discouraged','Vào sớm':'Early','Vào muộn':'Late','Dời SL':'Moved SL','Lệch plan':'Off-plan'});
+Object.assign(EN,{'Loại':'Type','Giới hạn lỗ ngày ($)':'Daily loss limit ($)','Quy tắc rủi ro':'Risk rules','Lỗ trong ngày':'Daily loss','Drawdown từ đỉnh vốn':'Drawdown from peak','Đã chạm giới hạn':'Limit hit','Gần chạm giới hạn':'Near limit','Sửa lệnh':'Edit trade','Cập nhật lệnh':'Update trade','Huỷ sửa':'Cancel edit','Sao lưu dữ liệu':'Backup data','Phạm vi':'Scope','Xuất JSON':'Export JSON','Xuất CSV':'Export CSV','Nhập file':'Import file','Đã nhập':'Imported','File không hợp lệ':'Invalid file','Max drawdown ($)':'Max drawdown ($)','Tên tài khoản':'Account name','VD: Prop firm 50K':'e.g. Prop firm 50K','Thêm tài khoản':'Add account','Xoá tài khoản':'Delete account','Tất cả tài khoản':'All accounts','lệnh':'trades','Phân tích':'Analytics','Giá vào':'Entry','Giá ra':'Exit','Stop loss':'Stop loss','Phí ($)':'Fee ($)','Giờ vào lệnh':'Entry time','Cảm xúc':'Emotion','Lỗi mắc phải':'Mistake','R (trống = tự tính)':'R (blank = auto)','Lãi/lỗ trước phí ($)':'P/L before fees ($)','Expectancy / lệnh':'Expectancy / trade','TB lệnh thắng':'Avg win','TB lệnh thua':'Avg loss','Chuỗi thắng dài nhất':'Longest win streak','Chuỗi thua dài nhất':'Longest loss streak','Lệnh tốt nhất':'Best trade','Lệnh tệ nhất':'Worst trade','Tổng phí':'Total fees','Lãi/lỗ theo thứ':'P/L by weekday','Lãi/lỗ theo giờ':'P/L by hour','Lãi/lỗ theo tháng':'P/L by month','Lãi/lỗ theo cảm xúc':'P/L by emotion','Lãi/lỗ theo lỗi mắc phải':'P/L by mistake','Lịch lãi/lỗ':'P/L calendar','T2':'Mon','T3':'Tue','T4':'Wed','T5':'Thu','T6':'Fri','T7':'Sat','CN':'Sun','Bình tĩnh':'Calm','Tự tin':'Confident','Sợ hãi':'Fearful','Tham':'Greedy','Nóng vội':'Impatient','Chán nản':'Discouraged','Vào sớm':'Early','Vào muộn':'Late','Dời SL':'Moved SL','Lệch plan':'Off-plan'});
+Object.assign(EN,{'RR (tự tính)':'RR (auto)','VD: 100':'e.g. 100','RR':'RR','Risk':'Risk'});
 const tr=s=>P.lang==='en'&&EN[s]!==undefined?EN[s]:s;
 const L=(vi,en)=>P.lang==='en'?en:vi;
 function dlg(msg,ask){return new Promise(res=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,10,.6);display:flex;align-items:center;justify-content:center;padding:16px';
@@ -177,10 +218,12 @@ function applyStatic(){
   if(n.__o===undefined)n.__o=n.nodeValue.trim();
   if(n.__o)n.nodeValue=tr(n.__o)}
  document.querySelectorAll('[placeholder]').forEach(e=>{if(e.__p===undefined)e.__p=e.placeholder;e.placeholder=tr(e.__p)});
- $('#th').textContent=P.theme==='dark'?'☀ '+tr('Sáng'):'🌙 '+tr('Tối');
- $('#lg').textContent=P.lang==='vi'?'EN':'VI';
+ $('#th').innerHTML=P.theme==='dark'?'<span class="ic">☀</span><span class="lb">'+tr('Sáng')+'</span>':'<span class="ic">🌙</span><span class="lb">'+tr('Tối')+'</span>';$('#th').title=P.theme==='dark'?tr('Sáng'):tr('Tối');
+ document.querySelectorAll('.bn').forEach(e=>e.textContent=tr('Nhật ký giao dịch'));
+ $('#lg').innerHTML='<span class="ic cd">'+(P.lang==='vi'?'EN':'VI')+'</span><span class="lb">'+(P.lang==='vi'?'English':'Tiếng Việt')+'</span>';$('#lg').title=P.lang==='vi'?'English':'Tiếng Việt';
+ setSide();
 }
-const hdr=()=>{$('#ac').innerHTML=S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')+`<option value="all">${tr('Tất cả tài khoản')}</option>`;$('#ac').value=S.cur};const refresh=()=>{applyStatic();hdr();show(cur)};
+const hdr=()=>{$('#ac').innerHTML=S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')+`<option value="all">${tr('Tất cả tài khoản')}</option>`;$('#ac').value=S.cur;const cA=S.accounts.find(x=>x.id===S.cur),nm=cA?cA.name:tr('Tất cả tài khoản');$('#acb').innerHTML='<span class="ic av">'+(cA?esc(([...nm.trim()][0]||'?').toUpperCase()):'∑')+'</span><span class="lb">'+esc(nm)+'</span>';$('#acb').title=nm};const refresh=()=>{applyStatic();hdr();show(cur)};
 const money=n=>(n<0?'-':'')+'$'+Math.abs(n).toLocaleString('en-US',{maximumFractionDigits:2});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const IDX=['NQ','ES','YM','RTY','NAS100','US30','SPX500'],MET=['GC','SI','HG','PL','XAUUSD','XAGUSD'];
@@ -271,7 +314,7 @@ function dash(){
 
 function log(){
  const ts=[...TR()].sort((a,b)=>b.date.localeCompare(a.date));
- $('#tbl').innerHTML=ts.length?`<table><thead><tr>${['Ngày','Mã','Hướng','Setup','Lãi/lỗ','R','Ghi chú'].map(h=>`<th>${tr(h)}</th>`).join('')}<th></th></tr></thead><tbody>${ts.map(t=>`<tr><td>${t.date}</td><td>${esc(t.symbol)}${S.cur==='all'?' <small style="color:var(--mut)">'+esc((S.accounts.find(a=>a.id===t.acc)||{}).name||'')+'</small>':''}</td><td>${t.side}</td><td>${esc(t.setup)}</td><td class="${cls(t.pnl)}">${money(t.pnl)}</td><td>${t.r===null||isNaN(t.r)?'–':t.r}</td><td>${esc(t.note||'')} ${[t.emo,t.mis].filter(Boolean).map(x=>'<small style="color:var(--acc)">#'+esc(tr(x))+'</small>').join(' ')}</td><td><button class="x" data-ed="${t.id}" aria-label="${tr('Sửa lệnh')}">✎</button><button class="x" data-del="${t.id}" aria-label="${tr('Xoá lệnh')}">✕</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">'+tr('Chưa có lệnh nào.')+'</div>';
+ $('#tbl').innerHTML=ts.length?`<table><thead><tr>${['Ngày','Mã','Hướng','Setup','Lãi/lỗ','Risk','RR','Ghi chú'].map(h=>`<th>${tr(h)}</th>`).join('')}<th></th></tr></thead><tbody>${ts.map(t=>`<tr><td>${t.date}</td><td>${esc(t.symbol)}${S.cur==='all'?' <small style="color:var(--mut)">'+esc((S.accounts.find(a=>a.id===t.acc)||{}).name||'')+'</small>':''}</td><td>${t.side}</td><td>${esc(t.setup)}</td><td class="${cls(t.pnl)}">${money(t.pnl)}</td><td>${t.risk==null?'–':money(t.risk)+(t.rm==='pct'?' <small style="color:var(--mut)">('+t.rv+'%)</small>':'')}</td><td>${t.r===null||isNaN(t.r)?'–':t.r+'R'}</td><td>${esc(t.note||'')} ${[t.emo,t.mis].filter(Boolean).map(x=>'<small style="color:var(--acc)">#'+esc(tr(x))+'</small>').join(' ')}</td><td><button class="x" data-ed="${t.id}" aria-label="${tr('Sửa lệnh')}">✎</button><button class="x" data-del="${t.id}" aria-label="${tr('Xoá lệnh')}">✕</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">'+tr('Chưa có lệnh nào.')+'</div>';
  $('#fp').innerHTML=S.setups.map(x=>`<option>${esc(x)}</option>`).join('');$('#fem').innerHTML=opt(EM);$('#fac').innerHTML=S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');$('#fac').value=A0();$('#fmi').innerHTML=opt(MS);
 }
 
@@ -314,7 +357,7 @@ function an(){
 }
 function accs(){
  const ni=(a,f)=>`<input type="number" data-id="${a.id}" data-f="${f}" value="${a[f]??''}" min="0" step="any" style="width:100px;margin:0">`,TY=['Live','Demo','Prop'];
- $('#acl').innerHTML=`<table style="min-width:820px"><thead><tr>${['Tên tài khoản','Loại','Vốn ban đầu','Giới hạn lỗ ngày ($)','Max drawdown ($)','Số lệnh','Lãi/lỗ','Vốn hiện tại'].map(h=>`<th>${tr(h)}</th>`).join('')}<th></th></tr></thead><tbody>${S.accounts.map(a=>{const s=stats(S.trades.filter(t=>t.acc===a.id));return `<tr><td><input data-id="${a.id}" data-f="name" value="${esc(a.name)}" style="margin:0;min-width:130px"></td><td><select data-id="${a.id}" data-f="type" style="margin:0;width:auto">${TY.map(x=>`<option value="${x}"${x===(a.type||'Live')?' selected':''}>${x==='Prop'?'Prop firm':x}</option>`).join('')}</select></td><td>${ni(a,'balance')}</td><td>${ni(a,'dl')}</td><td>${ni(a,'md')}</td><td>${s.n}</td><td class="${cls(s.net)}">${money(s.net)}</td><td data-cb="${a.id}">${money(a.balance+s.net)}</td><td><button class="x" data-da="${a.id}" aria-label="${tr('Xoá tài khoản')}"${S.accounts.length<2?' disabled title="'+tr('Cần giữ lại ít nhất 1 tài khoản')+'" style="opacity:.3;cursor:not-allowed"':''}>✕</button></td></tr>`}).join('')}</tbody></table>`;
+ $('#acl').innerHTML=`<table style="min-width:820px"><thead><tr>${['Tên tài khoản','Loại','Vốn ban đầu','Giới hạn lỗ ngày ($)','Max drawdown ($)','Số lệnh','Lãi/lỗ','Vốn hiện tại'].map(h=>`<th>${tr(h)}</th>`).join('')}<th></th></tr></thead><tbody>${S.accounts.map(a=>{const s=stats(S.trades.filter(t=>t.acc===a.id));return `<tr><td><input data-id="${a.id}" data-f="name" value="${esc(a.name)}" style="margin:0;min-width:130px"></td><td><select data-id="${a.id}" data-f="type" style="margin:0;width:auto">${TY.map(x=>`<option value="${x}"${x===(a.type||'Live')?' selected':''}>${x==='Prop'?'Prop firm':x}</option>`).join('')}</select></td><td>${ni(a,'balance')}</td><td>${ni(a,'dl')}</td><td>${ni(a,'md')}</td><td>${s.n}</td><td class="${cls(s.net)}">${money(s.net)}</td><td data-cb="${a.id}">${money(a.balance+s.net)}</td><td><button class="x" data-da="${a.id}" aria-label="${tr('Xoá tài khoản')}">✕</button></td></tr>`}).join('')}</tbody></table>`;
 xaSync();
 }
 function xaSync(){const xv=$('#xa').value||'all';$('#xa').innerHTML=`<option value="all">${tr('Tất cả tài khoản')}</option>`+S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');$('#xa').value=xv;if(!$('#xa').value)$('#xa').value='all'}
@@ -328,32 +371,57 @@ function rules(){
    return `<div style="margin-top:8px"><div class="row" style="justify-content:space-between"><span>${tr(lab)}</span><span class="${q>=100?'loss':''}">${money(u)} / ${money(lim)} (${Math.round(q)}%)${q>=100?' ⚠ '+tr('Đã chạm giới hạn'):q>=80?' ⚠ '+tr('Gần chạm giới hạn'):''}</span></div><div style="height:6px;border-radius:4px;background:var(--inp);margin-top:4px"><div style="width:${Math.min(100,q)}%;height:100%;border-radius:4px;background:var(${c})"></div></div></div>`};
   return `<div class="card" style="margin-bottom:14px"><h2>${esc(a.name)} · ${tr('Quy tắc rủi ro')}</h2>${b('Lỗ trong ngày',dayL,a.dl)}${b('Drawdown từ đỉnh vốn',pk-eq,a.md)}</div>`}).join('');
 }
+const IC={dash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',log:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>',an:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20v-7M12 20V5M18 20v-10"/></svg>',set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>'};
 const V=[['dash','Dashboard'],['log','Nhật ký lệnh'],['an','Phân tích'],['set','Setup']];
 function show(v){
  V.forEach(([k])=>$('#v-'+k).classList.toggle('on',k===v));
- $('#nav').innerHTML=V.map(([k,n])=>`<button class="${k===v?'on':''}" data-v="${k}">${tr(n)}</button>`).join('');
+ $('#nav').innerHTML=V.map(([k,n])=>`<button class="sb${k===v?' on':''}" data-v="${k}" title="${tr(n)}"${k===v?' aria-current="page"':''}><span class="ic">${IC[k]}</span><span class="lb">${tr(n)}</span></button>`).join('');
  if(v==='dash'){dash();hover()}if(v==='log')log();if(v==='an')an();if(v==='set')sets();
 }
-let cur='dash';const go=v=>{cur=v;show(v)};
+const mq=matchMedia('(max-width:760px)'),mob=()=>mq.matches;let sideOpen=false;
+function setSide(){const m=mob();document.body.classList.toggle('sc',!m&&!!P.sc);document.body.classList.toggle('so',m&&sideOpen);
+ const open=m?sideOpen:!P.sc,t=open?L('Thu gọn thanh bên','Collapse sidebar'):L('Mở rộng thanh bên','Expand sidebar');
+ [$('#tg'),$('#tg2')].forEach(b=>{b.setAttribute('aria-expanded',String(open));b.setAttribute('aria-label',t);b.title=t});
+ $('#side').toggleAttribute('inert',m&&!sideOpen)}
+const tgl=()=>{if(mob())sideOpen=!sideOpen;else P.sc=!P.sc;savP();setSide()};
+$('#tg').onclick=tgl;$('#tg2').onclick=tgl;
+$('#scrim').onclick=()=>{sideOpen=false;setSide()};
+$('#acb').onclick=()=>{P.sc=false;savP();setSide();setTimeout(()=>$('#ac').focus(),260)};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&mob()&&sideOpen){sideOpen=false;setSide()}});
+mq.addEventListener('change',()=>{sideOpen=false;setSide()});
+let cur='dash';const go=v=>{cur=v;show(v);if(mob()&&sideOpen){sideOpen=false;setSide()}};
 
-$('#nav').onclick=e=>{const v=e.target.dataset.v;if(v)go(v)};
+$('#nav').onclick=e=>{const b=e.target.closest('[data-v]');if(b)go(b.dataset.v)};
 const td=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);$('#fd').value=td();
+const calcRisk=()=>{const n=id=>parseFloat($('#'+id).value),pnl=(n('fl')||0)-(n('ffe')||0),rk=n('fr'),rm=$('#frm').value;
+ if(!isNaN(rk)&&rk>0){let risk=rk;
+  if(rm==='pct'){const a=S.accounts.find(x=>x.id===$('#fac').value),d=$('#fd').value,me=EID?S.trades.find(t=>String(t.id)===EID):null;
+   const b=a?a.balance+S.trades.filter(t=>t.acc===a.id&&t!==me&&(t.date<d||(t.date===d&&(!me||t.id<me.id)))).reduce((x,t)=>x+t.pnl,0):0;
+   if(b<=0)return{risk:null,rv:rk,rm,r:NaN,bad:true};risk=+(b*rk/100).toFixed(2)}
+  return{risk,rv:rk,rm,r:risk>0?+(pnl/risk).toFixed(2):NaN}}
+ const en=n('fen'),ex=n('fex'),sl=n('fsl');
+ return{risk:null,rv:null,rm,r:[en,ex,sl].every(v=>!isNaN(v))&&en!==sl?+((ex-en)/(en-sl)).toFixed(2):NaN}};
+const updRP=()=>{const c=calcRisk(),e=$('#frr');
+ e.value=isNaN(c.r)||(c.risk!==null&&!$('#fl').value)?'':c.r+'R';
+ e.title=c.bad?L('Vốn tài khoản ≤ 0','Account balance ≤ 0'):(c.risk!==null&&c.rm==='pct'?'Risk ≈ '+money(c.risk):'')};
 const saveTrade=()=>{if(!$('#f').reportValidity())return;
  const n=id=>parseFloat($('#'+id).value),nu=x=>isNaN(x)?null:x,en=n('fen'),ex=n('fex'),sl=n('fsl'),fee=n('ffe')||0;
- let r=n('fr');if(isNaN(r)&&[en,ex,sl].every(v=>!isNaN(v))&&en!==sl)r=+((ex-en)/(en-sl)).toFixed(2);
- const o={id:Date.now()+Math.random(),acc:$('#fac').value,date:$('#fd').value,symbol:$('#fs').value.trim().toUpperCase(),side:$('#fi').value,setup:$('#fp').value,pnl:n('fl')-fee,fee,r:nu(r),en:nu(en),ex:nu(ex),sl:nu(sl),time:$('#fti').value,emo:$('#fem').value,mis:$('#fmi').value,note:$('#fn').value};
+ const c=calcRisk();if(c.bad){note(L('Không tính được % rủi ro vì vốn tài khoản ≤ 0','Cannot compute % risk: account balance ≤ 0'));return}
+ const r=c.r;
+ const o={id:Date.now()+Math.random(),acc:$('#fac').value,date:$('#fd').value,symbol:$('#fs').value.trim().toUpperCase(),side:$('#fi').value,setup:$('#fp').value,pnl:n('fl')-fee,fee,risk:c.risk,rv:c.rv,rm:c.risk===null?null:c.rm,r:nu(r),en:nu(en),ex:nu(ex),sl:nu(sl),time:$('#fti').value,emo:$('#fem').value,mis:$('#fmi').value,note:$('#fn').value};
  if(EID){const i=S.trades.findIndex(t=>String(t.id)===EID);if(i>=0)S.trades[i]={...o,id:S.trades[i].id}}else S.trades.push(o);endEdit();
- save();['fs','fl','fr','fn','fen','fex','fsl','ffe','fti'].forEach(i=>$('#'+i).value='');go('log')};
+ save();['fs','fl','fr','fn','fen','fex','fsl','ffe','fti'].forEach(i=>$('#'+i).value='');updRP();go('log')};
+['fl','fr','frm','ffe','fac','fd','fen','fex','fsl'].forEach(i=>{$('#'+i).addEventListener('input',updRP);$('#'+i).addEventListener('change',updRP)});
 $('#v-an').onclick=e=>{const m=e.target.dataset.m;if(m){CAL.setMonth(CAL.getMonth()+ +m);an()}};
 $('#fsb').onclick=saveTrade;$('#f').onkeydown=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();saveTrade()}};$('#f').onsubmit=e=>{e.preventDefault();saveTrade()};
 let EID=null;const endEdit=()=>{EID=null;$('#fsb').textContent=tr('Lưu lệnh');$('#cx').style.display='none'};
-$('#cx').onclick=()=>{endEdit();$('#f').reset();$('#fd').value=td()};
+$('#cx').onclick=()=>{endEdit();$('#f').reset();$('#fd').value=td();updRP()};
 $('#tbl').onclick=async e=>{const d=e.target.dataset.del,ed=e.target.dataset.ed;
  if(d&&await ask(tr('Xoá lệnh')+'?')){S.trades=S.trades.filter(t=>String(t.id)!==d);save();go('log')}
  if(ed){const t=S.trades.find(x=>String(x.id)===ed);if(!t)return;EID=ed;const f=(i,v)=>$('#'+i).value=v==null?'':v;
   if(t.setup&&![...$('#fp').options].some(o=>o.value===t.setup))$('#fp').add(new Option(t.setup,t.setup));
-  f('fac',t.acc);f('fd',t.date);f('fs',t.symbol);f('fi',t.side);f('fp',t.setup);f('fl',+(t.pnl+(t.fee||0)).toFixed(2));f('fr',t.r);f('fen',t.en);f('fex',t.ex);f('fsl',t.sl);f('ffe',t.fee);f('fti',t.time);f('fem',t.emo);f('fmi',t.mis);f('fn',t.note);
-  $('#fsb').textContent=tr('Cập nhật lệnh');$('#cx').style.display='';$('#f').scrollIntoView({behavior:'smooth'})}};
+  f('fac',t.acc);f('fd',t.date);f('fs',t.symbol);f('fi',t.side);f('fp',t.setup);f('fl',+(t.pnl+(t.fee||0)).toFixed(2));f('fr',t.risk==null?'':(t.rv!=null?t.rv:t.risk));$('#frm').value=t.rm||'usd';f('fen',t.en);f('fex',t.ex);f('fsl',t.sl);f('ffe',t.fee);f('fti',t.time);f('fem',t.emo);f('fmi',t.mis);f('fn',t.note);
+  updRP();$('#fsb').textContent=tr('Cập nhật lệnh');$('#cx').style.display='';$('#f').scrollIntoView({behavior:'smooth'})}};
 const addSetup=()=>{const n=$('#ns').value.trim();if(!n)return;if(S.setups.some(x=>x.toLowerCase()===n.toLowerCase())){note(L('Setup đã tồn tại','Setup already exists'));return}S.setups.push(n);save();go('set');$('#ns').value='';$('#ns').focus()};
 $('#adds').onclick=addSetup;$('#ns').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addSetup()}};
 $('#setl').onclick=async e=>{const b=e.target.closest('[data-ds]');if(!b)return;const i=+b.dataset.ds,n=S.setups[i];if(n===undefined)return;const c=S.trades.filter(t=>t.setup===n).length;
@@ -370,10 +438,9 @@ $('#acl').onchange=e=>{const el=e.target,d=el.dataset,a=S.accounts.find(x=>x.id=
  else{const x=parseFloat(v);if(d.f==='balance'){if(isNaN(x)||x<0){el.value=a.balance;return}a.balance=x}else{a[d.f]=x>0?x:null;el.value=a[d.f]??''}}
  save();hdr();updAcc(a)};
 $('#acl').onclick=async e=>{const b=e.target.closest('[data-da]');if(!b||b.disabled)return;const d=b.dataset.da;
- if(S.accounts.length<2){note(tr('Cần giữ lại ít nhất 1 tài khoản'));return}
  const a=S.accounts.find(x=>x.id===d);if(!a)return;const c=S.trades.filter(t=>t.acc===d).length;
  if(!await ask(L(`Xoá tài khoản "${a.name}" và ${c} lệnh của tài khoản này? Không thể hoàn tác.`,`Delete account "${a.name}" and its ${c} trades? This cannot be undone.`)))return;
- S.accounts=S.accounts.filter(x=>x.id!==d);S.trades=S.trades.filter(t=>t.acc!==d);if(S.cur===d)S.cur=S.accounts[0].id;
+ S.accounts=S.accounts.filter(x=>x.id!==d);S.trades=S.trades.filter(t=>t.acc!==d);if(!S.accounts.length)S.accounts=[{id:uid(),name:'Tài khoản 1',balance:0,type:'Live',dl:null,md:null}];if(S.cur===d||(S.cur!=='all'&&!S.accounts.some(x=>x.id===S.cur)))S.cur=S.accounts[0].id;
  if(EID&&!S.trades.some(t=>String(t.id)===EID)){endEdit();$('#f').reset();$('#fd').value=td()}
  save();refresh()};
 $('#ac').onchange=e=>{S.cur=e.target.value;save();refresh()};
@@ -385,7 +452,7 @@ $('#demo').onclick=()=>{
  const sy=['NQ','ES','YM','GC','SI','EURUSD','GBPUSD','XAUUSD'];
  for(let i=0;i<30;i++){const win=rnd()<0.52,r=win?+(0.8+rnd()*2).toFixed(1):-+(0.6+rnd()*0.6).toFixed(1);
   const d=new Date(Date.now()-(30-i)*864e5*1.5).toISOString().slice(0,10);
-  S.trades.push({id:Date.now()+i,acc:A0(),date:d,symbol:sy[Math.floor(rnd()*sy.length)],side:rnd()<.5?'Long':'Short',setup:S.setups[Math.floor(rnd()*S.setups.length)]||'Breakout',pnl:Math.round(r*100),r,note:'',time:String(8+Math.floor(rnd()*8)).padStart(2,'0')+':00',emo:EM[Math.floor(rnd()*EM.length)],mis:rnd()<.4?MS[1+Math.floor(rnd()*(MS.length-1))]:''})}
+  S.trades.push({id:Date.now()+i,acc:A0(),date:d,symbol:sy[Math.floor(rnd()*sy.length)],side:rnd()<.5?'Long':'Short',setup:S.setups[Math.floor(rnd()*S.setups.length)]||'Breakout',pnl:Math.round(r*100),risk:100,rv:100,rm:'usd',r,note:'',time:String(8+Math.floor(rnd()*8)).padStart(2,'0')+':00',emo:EM[Math.floor(rnd()*EM.length)],mis:rnd()<.4?MS[1+Math.floor(rnd()*(MS.length-1))]:''})}
  save();go('dash')};
 function csv(t){const r=[];let w=[],c='',q=0;for(let i=0;i<t.length;i++){const h=t[i];
  if(q){if(h=='"'){if(t[i+1]=='"'){c+='"';i++}else q=0}else c+=h}
@@ -395,7 +462,7 @@ const dl=(n,t,m)=>{const a=document.createElement('a');a.href=URL.createObjectUR
 const xs=()=>{const v=$('#xa').value;return{a:v==='all'?S.accounts:S.accounts.filter(x=>x.id===v),t:v==='all'?S.trades:S.trades.filter(t=>t.acc===v)}};
 $('#xj').onclick=()=>{const x=xs();dl('trading-journal-'+td()+'.json',JSON.stringify({accounts:x.a,trades:x.t},null,1),'application/json')};
 $('#xc').onclick=()=>{const x=xs(),q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"',nm=id=>(S.accounts.find(a=>a.id===id)||{}).name;
- dl('trading-journal-'+td()+'.csv','\ufeff'+'account,date,symbol,side,setup,pnl,fee,r,entry,exit,sl,time,emotion,mistake,note\n'+x.t.map(t=>[nm(t.acc),t.date,t.symbol,t.side,t.setup,t.pnl,t.fee||0,t.r,t.en,t.ex,t.sl,t.time,t.emo,t.mis,t.note].map(q).join(',')).join('\n'),'text/csv')};
+ dl('trading-journal-'+td()+'.csv','\ufeff'+'account,date,symbol,side,setup,pnl,fee,risk,risk_pct,r,entry,exit,sl,time,emotion,mistake,note\n'+x.t.map(t=>[nm(t.acc),t.date,t.symbol,t.side,t.setup,t.pnl,t.fee||0,t.risk,t.rm==='pct'?t.rv:'',t.r,t.en,t.ex,t.sl,t.time,t.emo,t.mis,t.note].map(q).join(',')).join('\n'),'text/csv')};
 $('#xi').onclick=()=>$('#imp').click();
 $('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{
  let n=0;const txt=String(rd.result).replace(/^\ufeff/,''),ids=new Set(S.trades.map(t=>String(t.id)));
@@ -408,7 +475,7 @@ $('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileR
  else{const rows=csv(txt),h=rows.shift().map(x=>x.trim().toLowerCase()),g=(r,k)=>(r[h.indexOf(k)]||'').trim(),nu=v=>v===''||isNaN(+v)?null:+v;
   rows.forEach(r=>{const pnl=parseFloat(g(r,'pnl'));if(!/^\d{4}-\d\d-\d\d$/.test(g(r,'date'))||isNaN(pnl))return;
    const nm=g(r,'account');let a=nm?S.accounts.find(x=>x.name.toLowerCase()===nm.toLowerCase()):S.accounts.find(x=>x.id===A0());if(!a){a={id:uid(),name:nm,balance:0,type:'Live',dl:null,md:null};S.accounts.push(a)}
-   S.trades.push({id:Date.now()+Math.random(),acc:a.id,date:g(r,'date'),symbol:g(r,'symbol').toUpperCase(),side:g(r,'side')==='Short'?'Short':'Long',setup:g(r,'setup'),pnl,fee:nu(g(r,'fee'))||0,r:nu(g(r,'r')),en:nu(g(r,'entry')),ex:nu(g(r,'exit')),sl:nu(g(r,'sl')),time:g(r,'time'),emo:g(r,'emotion'),mis:g(r,'mistake'),note:g(r,'note')});n++})}
+   S.trades.push({id:Date.now()+Math.random(),acc:a.id,date:g(r,'date'),symbol:g(r,'symbol').toUpperCase(),side:g(r,'side')==='Short'?'Short':'Long',setup:g(r,'setup'),pnl,fee:nu(g(r,'fee'))||0,risk:nu(g(r,'risk')),rm:nu(g(r,'risk_pct'))?'pct':(nu(g(r,'risk'))?'usd':null),rv:nu(g(r,'risk_pct'))||nu(g(r,'risk')),r:nu(g(r,'r')),en:nu(g(r,'entry')),ex:nu(g(r,'exit')),sl:nu(g(r,'sl')),time:g(r,'time'),emo:g(r,'emotion'),mis:g(r,'mistake'),note:g(r,'note')});n++})}
  S.trades.forEach(t=>{if(t.setup&&!S.setups.includes(t.setup))S.setups.push(t.setup)});
  save();refresh();note(tr('Đã nhập')+' '+n+' '+tr('lệnh'))}catch(x){note(tr('File không hợp lệ'))}};
  rd.readAsText(f);e.target.value=''};
@@ -437,6 +504,7 @@ addEventListener('mousemove',e=>{mx=e.clientX/W-.5});
 requestAnimationFrame(frame);
 })();
 refresh();
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove('nt')));
 </script>
 </body>
 </html>
