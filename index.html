@@ -469,7 +469,8 @@ function csv(t){const r=[];let w=[],c='',q=0;for(let i=0;i<t.length;i++){const h
  if(q){if(h=='"'){if(t[i+1]=='"'){c+='"';i++}else q=0}else c+=h}
  else if(h=='"')q=1;else if(h==','){w.push(c);c=''}else if(h=='\n'||h=='\r'){if(h=='\r'&&t[i+1]=='\n')i++;w.push(c);c='';r.push(w);w=[]}else c+=h}
  if(c||w.length){w.push(c);r.push(w)}return r}
-const dl=(n,t,m)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)};
+const saveBlob=(b,n)=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=n;a.style.display='none';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),6e4)};
+const dl=(n,t,m)=>saveBlob(new Blob([t],{type:m}),n);
 const xs=()=>{const v=$('#xa').value;return{a:v==='all'?S.accounts:S.accounts.filter(x=>x.id===v),t:v==='all'?S.trades:S.trades.filter(t=>t.acc===v)}};
 $('#xj').onclick=()=>{const x=xs();dl('trading-journal-'+td()+'.json',JSON.stringify({accounts:x.a,trades:x.t},null,1),'application/json')};
 $('#xc').onclick=()=>{const x=xs(),q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"',nm=id=>(S.accounts.find(a=>a.id===id)||{}).name;
@@ -579,7 +580,7 @@ function bgOf(v,sc){const k=v+sc;if(sc<=1&&BG[k])return BG[k];
 const rankOf=s=>!s.n?'STARDUST':s.pf>=3&&s.n>=20?'SINGULARITY':s.pf>=2?'QUASAR':s.pf>=1.5?'PULSAR':s.pf>=1?'NOVA':'STARDUST';
 const CD={from:'',to:'',mode:'usd',v:P.cv&&BGF[P.cv]?P.cv:'hole',name:P.cname||'',sc:null};
 function cData(){
- const all=TR(),ds=all.map(t=>t.date).sort(),mn=ds[0]||td(),mx=ds[ds.length-1]||td(),f=CD.from||mn,t=CD.to||mx;
+ const all=TR(),ds=all.map(t=>t.date).sort(),mn=ds[0]||td(),mx=ds[ds.length-1]||td(),F=CD.from||mn,T=CD.to||mx,f=F<=T?F:T,t=F<=T?T:F;
  const ts=all.filter(x=>x.date>=f&&x.date<=t),s=stats(ts),a=S.accounts.find(x=>x.id===S.cur);
  return{f,t,s,sc:S.cur==='all'?tr('Tất cả tài khoản'):(a?a.name:''),since:(S.trades.map(x=>x.date).sort()[0]||td()).slice(0,4),bal:BAL(),rsum:ts.filter(x=>x.r!==null&&!isNaN(x.r)).reduce((q,x)=>q+x.r,0)}}
 function pnlTxt(d){const s=d.s,sg=v=>v>=0?'+':'-';
@@ -617,6 +618,26 @@ function drawCard(c,v,d,sc){
  c.letterSpacing='0px';c.restore()}
 function paintAll(){const m=$('#cmain');if(!m)return;const d=cData();drawCard(m.getContext('2d'),CD.v,d,1);
  document.querySelectorAll('.cth').forEach(b=>drawCard(b.firstChild.getContext('2d'),b.dataset.cv,d,.5))}
+const loadFonts=()=>{if(!(document.fonts&&document.fonts.load))return Promise.resolve();
+ const d=cData(),sm=(CD.name+' '+d.sc).toUpperCase()+' '+CD.name+' '+d.sc+' TRADER MEMBER SINCE WIN RATE PROFIT FACTOR AVERAGE ĂÂĐÊÔƠƯ ÁÀẢÃẠ';
+ return Promise.all([['800 40px Orbitron','TRADING JOURNAL +$0123456789.,%R-'],['500 20px "Space Grotesk"',sm],['600 20px "Space Grotesk"',sm],['700 40px "Space Grotesk"',sm+'0123456789.%R∞']].map(([f,t])=>document.fonts.load(f,t))).then(()=>document.fonts.ready).catch(()=>{})};
+function showPrev(b,n){const u=URL.createObjectURL(b),o=document.createElement('div');
+ o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,10,.72);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto';
+ const k=document.createElement('div');k.className='card';k.style.cssText='max-width:760px;width:100%;max-height:100%;overflow:auto;background:var(--hole);color:var(--ink)';
+ const p=document.createElement('p');p.style.cssText='margin:0 0 12px;line-height:1.5';
+ p.textContent=L('Ảnh đã được tải xuống. Nếu Windows báo không có ứng dụng để mở file .png, bạn vẫn xem/lưu ảnh ngay tại đây: dùng các nút bên dưới hoặc chuột phải vào ảnh → Lưu ảnh thành…','The image has been downloaded. If your system has no app to open .png files, you can still view/save it right here: use the buttons below or right-click the image → Save image as…');
+ const im=new Image();im.src=u;im.alt=n;im.style.cssText='width:100%;height:auto;display:block;border-radius:14px;margin-bottom:14px';
+ const r=document.createElement('div');r.className='row';r.style.justifyContent='flex-end';
+ const kd=ev=>{if(ev.key==='Escape'){ev.preventDefault();done()}};
+ const done=()=>{o.remove();document.removeEventListener('keydown',kd,true);setTimeout(()=>URL.revokeObjectURL(u),6e4)};
+ document.addEventListener('keydown',kd,true);
+ const mk=(t,fn,g)=>{const x=document.createElement('button');x.type='button';x.className='btn'+(g?' ghost':'');x.textContent=t;x.onclick=fn;r.append(x);return x};
+ mk(L('Mở trong tab mới','Open in new tab'),()=>window.open(u,'_blank','noopener'),1);
+ if(navigator.clipboard&&window.ClipboardItem)mk(L('Sao chép ảnh','Copy image'),async ev=>{const t=ev.currentTarget;try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);t.textContent=L('Đã sao chép ✓','Copied ✓')}catch(x){t.textContent=L('Không sao chép được','Copy failed')}},1);
+ try{const fl=new File([b],n,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[fl]}))mk(L('Chia sẻ','Share'),()=>navigator.share({files:[fl],title:n}).catch(()=>{}),1)}catch(x){}
+ mk(L('Tải lại','Download again'),()=>saveBlob(b,n),1);
+ const c=mk(L('Đóng','Close'),done);
+ k.append(p,im,r);o.append(k);o.onclick=ev=>{if(ev.target===o)done()};document.body.append(o);c.focus()}
 function card(){
  if(CD.sc!==S.cur){CD.sc=S.cur;CD.from=CD.to=''}
  const d=cData(),mo=[['usd','Số tiền ($)'],['pct','% trên vốn'],['r','Tổng R']];
@@ -629,10 +650,14 @@ function card(){
  $('#cmo').onchange=e=>{CD.mode=e.target.value;paintAll()};
  $('#cnm').oninput=e=>{CD.name=e.target.value;P.cname=CD.name;savP();paintAll()};
  document.querySelector('.cgal').onclick=e=>{const b=e.target.closest('[data-cv]');if(!b)return;CD.v=b.dataset.cv;P.cv=CD.v;savP();document.querySelectorAll('.cth').forEach(x=>x.classList.toggle('on',x===b));paintAll()};
- $('#cdl').onclick=()=>{const cv=document.createElement('canvas');cv.width=CW*2;cv.height=CH*2;drawCard(cv.getContext('2d'),CD.v,cData(),2);
-  cv.toBlob(b=>{if(!b)return;const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='flex-card-'+CD.v+'-'+td()+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)},'image/png')};
+ $('#cdl').onclick=async e=>{const bt=e.currentTarget;if(bt.disabled)return;bt.disabled=true;
+  try{await loadFonts();const cv=document.createElement('canvas');cv.width=CW*2;cv.height=CH*2;drawCard(cv.getContext('2d'),CD.v,cData(),2);
+   const b=await new Promise(r=>cv.toBlob(r,'image/png'));if(!b)throw new Error('toBlob');
+   const n='flex-card-'+CD.v+'-'+td()+'.png';saveBlob(b,n);showPrev(b,n)}
+  catch(x){note(L('Không tạo được ảnh. Hãy thử lại.','Could not create the image. Please try again.'))}
+  bt.disabled=false};
  paintAll();
- if(document.fonts&&document.fonts.load)Promise.all(['800 40px Orbitron','700 40px "Space Grotesk"','500 20px "Space Grotesk"','600 20px "Space Grotesk"'].map(x=>document.fonts.load(x))).then(paintAll).catch(()=>{})}
+ loadFonts().then(paintAll)}
 $('#th').onclick=()=>{P.theme=P.theme==='dark'?'light':'dark';savP();refresh()};
 $('#lg').onclick=()=>{P.lang=P.lang==='vi'?'en':'vi';savP();refresh()};
 (function(){
@@ -653,7 +678,7 @@ function frame(t){
   const g=x.createLinearGradient(q.x,q.y,q.x-q.vx*9,q.y-q.vy*9);g.addColorStop(0,`rgba(${col},${q.l})`);g.addColorStop(1,`rgba(${col},0)`);
   x.strokeStyle=g;x.lineWidth=1.6;x.beginPath();x.moveTo(q.x,q.y);x.lineTo(q.x-q.vx*9,q.y-q.vy*9);x.stroke();return true});
  if(!rm)requestAnimationFrame(frame)}
-size();addEventListener('resize',size);
+size();addEventListener('resize',()=>{size();if(rm)frame(0)});
 addEventListener('mousemove',e=>{mx=e.clientX/W-.5});
 requestAnimationFrame(frame);
 })();
