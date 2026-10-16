@@ -197,6 +197,7 @@ tbody tr:hover{background:var(--inp)}
 <button class="btn" id="syb" type="button">Sync từ MT5</button>
 <button class="btn ghost" id="syr" type="button">Tải lại từ đầu</button>
 </div>
+<label class="chk on" id="syabw" style="margin-top:10px"><input type="checkbox" id="syab" checked>Tự đồng bộ vốn ban đầu từ số dư MT5</label>
 <p id="syMsg" style="color:var(--mut);font-size:13px;margin:8px 0 0"></p>
 </div>
 <div class="card" style="margin-top:12px">
@@ -760,7 +761,7 @@ addEventListener('mousemove',e=>{mx=e.clientX/W-.5});
 requestAnimationFrame(frame);
 })();
 /* ===== Đồng bộ từ MT5 ===== */
-let SY={url:'',token:'',def:'',map:{},since:0};
+let SY={url:'',token:'',def:'',map:{},since:0,autoBal:true};
 try{Object.assign(SY,JSON.parse(localStorage.getItem('tj_sync')||'{}'))}catch(e){}
 const saveSY=()=>{try{localStorage.setItem('tj_sync',JSON.stringify(SY))}catch(e){}};
 const ld=ms=>new Date(ms-new Date(ms).getTimezoneOffset()*6e4).toISOString(); // giờ máy bạn
@@ -768,16 +769,31 @@ function syncUI(){
  $('#syu').value=SY.url;$('#syt').value=SY.token;
  $('#sya').innerHTML=S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
  $('#sya').value=S.accounts.some(a=>a.id===SY.def)?SY.def:(S.cur!=='all'?S.cur:S.accounts[0].id);
+ $('#syab').checked=SY.autoBal!==false;$('#syabw').classList.toggle('on',$('#syab').checked);
 }
 const syDef=()=>{const v=$('#sya').value;return S.accounts.some(a=>a.id===v)?v:(S.accounts.some(a=>a.id===SY.def)?SY.def:S.accounts[0].id)};
-let syBusy=false;
-async function syncMT5(silent){
+const inForm=()=>cur==='log'&&$('#f').contains(document.activeElement); // đang gõ dở form thêm lệnh thì không vẽ lại
+let syBusy=false,syDirty=false;
+// Vốn ban đầu = số dư MT5 hiện tại - tổng PnL các lệnh của tài khoản trong journal, để "Vốn hiện tại" luôn khớp số dư MT5
+async function syncBal(url){
+ const r=await fetch(url+'/api/quote',{headers:{'X-Token':SY.token}});
+ if(!r.ok)return false;
+ const ac=(await r.json()).account;
+ if(!ac||!(+ac.balance>=0))return false;
+ const keys=Object.keys(SY.map),login=ac.login!=null?String(ac.login):(keys.length===1?keys[0]:null);
+ const id=login&&SY.map[login],a=id&&S.accounts.find(x=>x.id===id);
+ if(!a)return false;
+ const sum=S.trades.filter(t=>t.acc===a.id).reduce((q,t)=>q+t.pnl,0),nb=+(+ac.balance-sum).toFixed(2);
+ if(nb<0||nb===a.balance)return false;
+ a.balance=nb;return true;
+}
+async function syncMT5(silent,days){
  if(syBusy)return;
  const url=SY.url.replace(/\/$/,''),say=t=>{$('#syMsg').textContent=t};
  if(!url||!SY.token){if(!silent)say('Nhập API URL và token trước.');return}
  syBusy=true;if(!silent)say('Đang đồng bộ...');
  try{
-  let since=Math.max(0,(SY.since||0)-7*864e5),rows=[];const lim=500; // lùi 7 ngày để không sót lệnh EA gửi muộn
+  let since=Math.max(0,(SY.since||0)-(days||7)*864e5),rows=[];const lim=500; // lùi vài ngày để không sót lệnh EA gửi muộn
   for(let i=0;i<20;i++){
    const r=await fetch(`${url}/api/trades?since=${since}&limit=${lim}`,{headers:{'X-Token':SY.token}});
    if(!r.ok)throw new Error('HTTP '+r.status);
@@ -804,19 +820,28 @@ async function syncMT5(silent){
   });
   if(add&&!S.setups.includes('MT5'))S.setups.push('MT5');
   if(rows.length)SY.since=Math.max(SY.since||0,rows[rows.length-1].close_time);
+  let bal=false;
+  if(SY.autoBal!==false){try{bal=await syncBal(url)}catch(e){}}
   saveSY();
-  if(add||chg){save();refresh()}
-  say(`Đã đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}: ${add} lệnh mới, ${chg} lệnh cập nhật.`);
+  if(add||chg||bal){save();if(inForm())syDirty=true;else refresh()}
+  say(`Đã đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}: ${add} lệnh mới, ${chg} lệnh cập nhật${bal?', đã cập nhật vốn ban đầu':''}.`);
  }catch(e){say('Đồng bộ thất bại ('+e.message+'). Kiểm tra URL, token và EA.')}
  syBusy=false;
 }
 $('#syu').oninput=e=>{SY.url=e.target.value.trim();saveSY()};
 $('#syt').oninput=e=>{SY.token=e.target.value.trim();saveSY()};
 $('#sya').onchange=e=>{SY.def=e.target.value;saveSY()};
+$('#syab').onchange=e=>{SY.autoBal=e.target.checked;$('#syabw').classList.toggle('on',e.target.checked);saveSY()};
 $('#syb').onclick=()=>syncMT5(false);
 $('#syr').onclick=()=>{SY.since=0;saveSY();syncMT5(false)};
 syncUI();
-if(SY.url&&SY.token)syncMT5(true); // tự đồng bộ 1 lần khi mở journal
+if(SY.url&&SY.token)syncMT5(true); // tự đồng bộ khi mở journal
+// tự cập nhật mỗi 15 giây khi tab đang mở (EA đẩy lệnh lên ngay khi đóng, web chỉ việc kéo về)
+setInterval(()=>{
+ if(document.hidden||!SY.url||!SY.token)return;
+ if(syDirty&&!inForm()){syDirty=false;refresh()}
+ syncMT5(true,2);
+},15000);
 refresh();
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove('nt')));
 </script>
