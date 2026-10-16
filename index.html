@@ -773,7 +773,7 @@ function syncUI(){
 }
 const syDef=()=>{const v=$('#sya').value;return S.accounts.some(a=>a.id===v)?v:(S.accounts.some(a=>a.id===SY.def)?SY.def:S.accounts[0].id)};
 const inForm=()=>cur==='log'&&$('#f').contains(document.activeElement); // đang gõ dở form thêm lệnh thì không vẽ lại
-let syBusy=false,syDirty=false;
+let syBusy=false,syDirty=false,syBalAt=0;
 // Vốn ban đầu = số dư MT5 hiện tại - tổng PnL các lệnh của tài khoản trong journal, để "Vốn hiện tại" luôn khớp số dư MT5
 async function syncBal(url){
  const r=await fetch(url+'/api/quote',{headers:{'X-Token':SY.token}});
@@ -821,7 +821,7 @@ async function syncMT5(silent,days){
   if(add&&!S.setups.includes('MT5'))S.setups.push('MT5');
   if(rows.length)SY.since=Math.max(SY.since||0,rows[rows.length-1].close_time);
   let bal=false;
-  if(SY.autoBal!==false){try{bal=await syncBal(url)}catch(e){}}
+  if(SY.autoBal!==false&&(add||chg||Date.now()-syBalAt>300000)){try{bal=await syncBal(url);syBalAt=Date.now()}catch(e){}} // chỉ hỏi số dư khi có lệnh mới/đổi, hoặc 5 phút một lần
   saveSY();
   if(add||chg||bal){save();if(inForm())syDirty=true;else refresh()}
   say(`Đã đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}: ${add} lệnh mới, ${chg} lệnh cập nhật${bal?', đã cập nhật vốn ban đầu':''}.`);
