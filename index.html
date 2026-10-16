@@ -189,6 +189,17 @@ tbody tr:hover{background:var(--inp)}
 <p class="row" style="margin-top:16px"><button class="btn ghost" id="demo">Nạp dữ liệu mẫu</button><button class="btn ghost" id="clr">Xoá toàn bộ lệnh</button></p>
 </div>
 <div class="card" style="margin-top:12px">
+<h2>Đồng bộ từ MT5</h2>
+<div class="row">
+<label style="flex:1;min-width:220px">API URL<input id="syu" placeholder="https://signal-bridge.xxx.workers.dev"></label>
+<label style="flex:1;min-width:160px">Secret token<input id="syt" type="password" autocomplete="off"></label>
+<label>Gán vào tài khoản<select id="sya"></select></label>
+<button class="btn" id="syb" type="button">Sync từ MT5</button>
+<button class="btn ghost" id="syr" type="button">Tải lại từ đầu</button>
+</div>
+<p id="syMsg" style="color:var(--mut);font-size:13px;margin:8px 0 0"></p>
+</div>
+<div class="card" style="margin-top:12px">
 <h2>Sao lưu dữ liệu</h2>
 <div class="row"><label>Phạm vi<select id="xa"></select></label><button class="btn ghost" id="xj">Xuất JSON</button><button class="btn ghost" id="xc">Xuất CSV</button><button class="btn ghost" id="xi">Nhập file</button><input type="file" id="imp" accept=".json,.csv" hidden></div>
 </div>
@@ -390,7 +401,7 @@ function an(){
 function accs(){
  const ni=(a,f)=>`<input type="number" data-id="${a.id}" data-f="${f}" value="${a[f]??''}" min="0" step="any" style="width:100px;margin:0">`,TY=['Live','Demo','Prop'];
  $('#acl').innerHTML=`<table style="min-width:820px"><thead><tr>${['Tên tài khoản','Loại','Vốn ban đầu','Giới hạn lỗ ngày ($)','Max drawdown ($)','Số lệnh','Lãi/lỗ','Vốn hiện tại'].map(h=>`<th>${tr(h)}</th>`).join('')}<th></th></tr></thead><tbody>${S.accounts.map(a=>{const s=stats(S.trades.filter(t=>t.acc===a.id));return `<tr><td><input data-id="${a.id}" data-f="name" value="${esc(a.name)}" style="margin:0;min-width:130px"></td><td><select data-id="${a.id}" data-f="type" style="margin:0;width:auto">${TY.map(x=>`<option value="${x}"${x===(a.type||'Live')?' selected':''}>${x==='Prop'?'Prop firm':x}</option>`).join('')}</select></td><td>${ni(a,'balance')}</td><td>${ni(a,'dl')}</td><td>${ni(a,'md')}</td><td>${s.n}</td><td class="${cls(s.net)}">${money(s.net)}</td><td data-cb="${a.id}">${money(a.balance+s.net)}</td><td><button class="x" data-da="${a.id}" aria-label="${tr('Xoá tài khoản')}">✕</button></td></tr>`}).join('')}</tbody></table>`;
-xaSync();
+xaSync();syncUI();
 }
 function xaSync(){const xv=$('#xa').value||'all';$('#xa').innerHTML=`<option value="all">${tr('Tất cả tài khoản')}</option>`+S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');$('#xa').value=xv;if(!$('#xa').value)$('#xa').value='all'}
 function updAcc(a){const c=[...document.querySelectorAll('#acl [data-cb]')].find(x=>x.dataset.cb===a.id);if(c)c.textContent=money(a.balance+stats(S.trades.filter(t=>t.acc===a.id)).net);xaSync()}
@@ -748,6 +759,64 @@ size();addEventListener('resize',()=>{size();if(rm)frame(0)});
 addEventListener('mousemove',e=>{mx=e.clientX/W-.5});
 requestAnimationFrame(frame);
 })();
+/* ===== Đồng bộ từ MT5 ===== */
+let SY={url:'',token:'',def:'',map:{},since:0};
+try{Object.assign(SY,JSON.parse(localStorage.getItem('tj_sync')||'{}'))}catch(e){}
+const saveSY=()=>{try{localStorage.setItem('tj_sync',JSON.stringify(SY))}catch(e){}};
+const ld=ms=>new Date(ms-new Date(ms).getTimezoneOffset()*6e4).toISOString(); // giờ máy bạn
+function syncUI(){
+ $('#syu').value=SY.url;$('#syt').value=SY.token;
+ $('#sya').innerHTML=S.accounts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
+ $('#sya').value=S.accounts.some(a=>a.id===SY.def)?SY.def:(S.cur!=='all'?S.cur:S.accounts[0].id);
+}
+const syDef=()=>{const v=$('#sya').value;return S.accounts.some(a=>a.id===v)?v:(S.accounts.some(a=>a.id===SY.def)?SY.def:S.accounts[0].id)};
+let syBusy=false;
+async function syncMT5(silent){
+ if(syBusy)return;
+ const url=SY.url.replace(/\/$/,''),say=t=>{$('#syMsg').textContent=t};
+ if(!url||!SY.token){if(!silent)say('Nhập API URL và token trước.');return}
+ syBusy=true;if(!silent)say('Đang đồng bộ...');
+ try{
+  let since=Math.max(0,(SY.since||0)-7*864e5),rows=[];const lim=500; // lùi 7 ngày để không sót lệnh EA gửi muộn
+  for(let i=0;i<20;i++){
+   const r=await fetch(`${url}/api/trades?since=${since}&limit=${lim}`,{headers:{'X-Token':SY.token}});
+   if(!r.ok)throw new Error('HTTP '+r.status);
+   const b=await r.json();rows.push(...b);
+   if(b.length<lim)break;
+   const nx=b[b.length-1].close_time;if(nx<=since)break;since=nx;
+  }
+  const have=new Map(S.trades.map(t=>[String(t.id),t]));let add=0,chg=0;
+  rows.forEach(x=>{
+   const k='mt5-'+x.id,sym=String(x.symbol).split('.')[0].toUpperCase();
+   const o={date:ld(x.close_time).slice(0,10),symbol:sym,side:x.side==='buy'?'Long':'Short',
+    pnl:+x.net.toFixed(2),fee:+(-(x.commission+x.fee)).toFixed(2),en:x.open_price,ex:x.close_price,
+    sl:x.sl>0?x.sl:null,time:ld(x.open_time).slice(11,16)};
+   const rv=x.r==null?null:+x.r.toFixed(2),old=have.get(k);
+   if(old){ // chỉ cập nhật số liệu từ MT5, GIỮ nguyên setup / risk / cảm xúc / lỗi / ghi chú bạn đã nhập
+    const before=JSON.stringify(old);Object.assign(old,o);if(old.risk==null)old.r=rv;
+    if(JSON.stringify(old)!==before)chg++;
+   }else{
+    let acc=SY.map[x.account];
+    if(!acc||!S.accounts.some(a=>a.id===acc)){acc=syDef();SY.map[x.account]=acc}
+    S.trades.push({id:k,acc,...o,setup:'MT5',risk:null,rv:null,rm:null,r:rv,emo:'',mis:'',
+     note:(x.from_bridge?'Bridge '+(x.signal_src==='manual'?'tay':'TV'):'MT5')+' · '+(x.reason||'')});add++;
+   }
+  });
+  if(add&&!S.setups.includes('MT5'))S.setups.push('MT5');
+  if(rows.length)SY.since=Math.max(SY.since||0,rows[rows.length-1].close_time);
+  saveSY();
+  if(add||chg){save();refresh()}
+  say(`Đã đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}: ${add} lệnh mới, ${chg} lệnh cập nhật.`);
+ }catch(e){say('Đồng bộ thất bại ('+e.message+'). Kiểm tra URL, token và EA.')}
+ syBusy=false;
+}
+$('#syu').oninput=e=>{SY.url=e.target.value.trim();saveSY()};
+$('#syt').oninput=e=>{SY.token=e.target.value.trim();saveSY()};
+$('#sya').onchange=e=>{SY.def=e.target.value;saveSY()};
+$('#syb').onclick=()=>syncMT5(false);
+$('#syr').onclick=()=>{SY.since=0;saveSY();syncMT5(false)};
+syncUI();
+if(SY.url&&SY.token)syncMT5(true); // tự đồng bộ 1 lần khi mở journal
 refresh();
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove('nt')));
 </script>
